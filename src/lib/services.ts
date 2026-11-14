@@ -1,5 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
 import { ZodError } from "zod";
+import { createRequestId } from "@/lib/ai/logger";
+import { SkillForgeError, type SkillForgeErrorCode } from "@/lib/ai/errors";
+import { createClient } from "@/lib/supabase/server";
 
 export async function requireUser() {
   const supabase = await createClient();
@@ -8,11 +10,26 @@ export async function requireUser() {
   return { supabase, user };
 }
 
-export function apiError(error: unknown) {
-  const message = error instanceof Error ? error.message : "Unexpected server error";
-  console.error("SkillForge API error", error);
-  if (error instanceof ZodError) return Response.json({ error: "Invalid request." }, { status: 400 });
-  if (message === "Unauthorized") return Response.json({ error: message }, { status: 401 });
-  if (/not configured|required for secure server-side/i.test(message)) return Response.json({ error: message }, { status: 503 });
-  return Response.json({ error: "Unable to complete that request right now." }, { status: 500 });
+function normalizeApiError(error: unknown): { code: SkillForgeErrorCode; message: string; retryable: boolean; statusCode: number } {
+  if (error instanceof SkillForgeError) return { code: error.code, message: error.message, retryable: error.retryable, statusCode: error.statusCode };
+  if (error instanceof ZodError) return { code: "INVALID_REQUEST", message: "Invalid request.", retryable: false, statusCode: 400 };
+  if (error instanceof Error && error.message === "Unauthorized") return { code: "UNAUTHORIZED_REQUEST", message: "Authentication is required.", retryable: false, statusCode: 401 };
+  if (error && typeof error === "object" && "code" in error && typeof (error as { code?: unknown }).code === "string") {
+    return { code: "DATABASE_ERROR", message: "A data service error occurred.", retryable: false, statusCode: 500 };
+  }
+  return { code: "INTERNAL_SERVER_ERROR", message: "Unable to complete that request right now.", retryable: false, statusCode: 500 };
+}
+
+export function apiError(error: unknown, requestId = createRequestId("api")) {
+  const normalized = normalizeApiError(error);
+  console.error("SkillForge API error", JSON.stringify({ requestId, code: normalized.code, retryable: normalized.retryable, statusCode: normalized.statusCode }));
+  return Response.json({
+    success: false,
+    error: {
+      code: normalized.code,
+      message: normalized.message,
+      retryable: normalized.retryable,
+      requestId,
+    },
+  }, { status: normalized.statusCode, headers: { "X-Request-Id": requestId } });
 }

@@ -23,7 +23,7 @@ export const profileAgent: Agent<"profile"> = {
   async run(context) {
     const fallback = deterministicProfile(context);
     if (!isGeminiConfigured()) return { agent: "profile", output: fallback, explanation: "Profile evidence was summarized deterministically because Gemini is not configured." };
-    const output = await generateJson({ prompt: profilePrompt({ profile: context.profile, certifications: context.certifications, projects: context.projects, learnerSkills: context.learnerSkills }), schema: profileAgentOutputSchema.toJSONSchema(), parse: (value) => profileAgentOutputSchema.parse(value) });
+    const output = await generateJson({ prompt: profilePrompt({ profile: context.profile, certifications: context.certifications, projects: context.projects, learnerSkills: context.learnerSkills }), schema: profileAgentOutputSchema.toJSONSchema(), parse: (value) => profileAgentOutputSchema.parse(value), metadata: { feature: "career_analysis", agent: "profile" } });
     return { agent: "profile", output, explanation: "Profile Agent separated learner claims from verifiable evidence and identified assessment needs." };
   },
 };

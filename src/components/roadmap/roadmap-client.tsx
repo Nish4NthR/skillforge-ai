@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BookOpen, CheckCircle2, Circle, Clock3, Lock, Loader2, Target } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/utils";
 
 type Resource = { id: string; title: string; url: string; provider: string; est_minutes: number };
 type Step = { id: string; skill_id: string; position: number; objective: string; reason: string; estimated_minutes: number; priority: string; completion_criteria: string; status: string; skills?: { name: string }; resources?: Resource[] };
@@ -18,7 +19,7 @@ export function RoadmapClient() {
     setMessage("");
     const response = await fetch("/api/assessment/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ skillId: step.skill_id, roadmapStepId: step.id, difficulty: "beginner", questionCount: 5 }) });
     const data = await response.json();
-    if (!response.ok) { setMessage(data.error ?? "Unable to create assessment."); return; }
+    if (!response.ok) { setMessage(getApiErrorMessage(data, "Unable to create assessment.")); return; }
     window.location.href = `/assessment/${data.assessment.id}`;
   }
   if (loading) return <div className="grid min-h-[50vh] place-items-center"><Loader2 className="animate-spin text-violet-300" /></div>;

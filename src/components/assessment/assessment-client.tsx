@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/utils";
 
 type Question = { id: string; question_text: string; options: string[]; concept: string };
 type Assessment = { id: string; status: string; difficulty: string; score?: number; skills?: { name: string } };
@@ -24,7 +25,7 @@ export function AssessmentClient({ assessmentId }: { assessmentId: string }) {
     fetch(`/api/assessment/${assessmentId}`)
       .then((response) => response.json())
       .then((data) => {
-        if (!data.questions) throw new Error(data.error ?? "Assessment not found");
+        if (!data.questions) throw new Error(getApiErrorMessage(data, "Assessment not found"));
         setAssessment(data.assessment);
         setQuestions(data.questions);
       })
@@ -41,7 +42,7 @@ export function AssessmentClient({ assessmentId }: { assessmentId: string }) {
       body: JSON.stringify({ assessmentId, answers: questions.map((question) => ({ questionId: question.id, answer: answers[question.id] ?? "" })) }),
     });
     const data = await response.json();
-    if (!response.ok) setError(data.error ?? "Unable to submit assessment.");
+    if (!response.ok) setError(getApiErrorMessage(data, "Unable to submit assessment."));
     else {
       setResult(data.mastery);
       setFeedback(data.feedback ?? []);

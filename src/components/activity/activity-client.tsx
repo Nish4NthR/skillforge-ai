@@ -5,6 +5,7 @@ import { CheckCircle2, CircleDashed, Loader2, Network, XCircle } from "lucide-re
 import { AgentFlow } from "@/components/activity/agent-flow";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { getApiErrorMessage } from "@/lib/utils";
 
 type Run = { id: string; run_type: string; status: string; created_at: string; completed_at?: string; error_message?: string };
 type AgentMessage = { id: string; sender_agent: string; receiver_agent?: string; message_type: string; payload: { explanation?: string; rationale?: string; selectedPlan?: string }; created_at: string };
@@ -47,7 +48,7 @@ export function ActivityClient() {
     setError("");
     const response = await fetch("/api/agents/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "career_analysis" }) });
     const data = await response.json();
-    if (!response.ok) setError(data.error ?? "Unable to start career analysis.");
+    if (!response.ok) setError(getApiErrorMessage(data, "Unable to start career analysis."));
     else if (data.runId) {
       const refreshed = await fetch("/api/agents/runs").then((item) => item.json());
       setRuns(refreshed.runs ?? []);

@@ -11,7 +11,7 @@ export const mentorAgent: Agent<"mentor"> = {
     if (!question) throw new Error("Mentor question is required.");
     const contextPayload = { profile: context.profile, activeRoadmap: context.activeRoadmap, proposedRoadmap: previous.roadmap, learnerSkills: context.learnerSkills, skills: context.skills };
     if (isGeminiConfigured()) {
-      const output = await generateJson({ prompt: mentorPrompt(question, contextPayload), schema: mentorAgentOutputSchema.toJSONSchema(), parse: (value) => mentorAgentOutputSchema.parse(value) });
+      const output = await generateJson({ prompt: mentorPrompt(question, contextPayload), schema: mentorAgentOutputSchema.toJSONSchema(), parse: (value) => mentorAgentOutputSchema.parse(value), metadata: { feature: "mentor", agent: "mentor" } });
       return { agent: "mentor", output, explanation: "Mentor response was grounded in the learner context and cannot modify mastery directly." };
     }
     const firstGap = context.skills.find((skill) => context.learnerSkills.some((learnerSkill) => learnerSkill.skillId === skill.id && learnerSkill.status !== "mastered"));

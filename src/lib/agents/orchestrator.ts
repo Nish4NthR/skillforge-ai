@@ -3,6 +3,7 @@ import { careerAnalysisAgentOrder, agentRegistry } from "@/lib/agents/agent-regi
 import { loadAgentContext } from "@/lib/agents/execution-context";
 import { persistAgentMessage } from "@/lib/agents/message-bus";
 import { createAgentRun, finishAgentRun } from "@/lib/agents/run-manager";
+import { normalizeAgentError } from "@/lib/ai/errors";
 import type { AgentContext, AgentName, AgentOutputMap } from "@/lib/agents/types";
 
 async function persistRoadmap(supabase: SupabaseClient, context: AgentContext, runId: string, outputs: Partial<AgentOutputMap>) {
@@ -74,10 +75,11 @@ export async function runAdaptiveRecovery(supabase: SupabaseClient, userId: stri
     await finishAgentRun(supabase, runId, "completed", result);
     return result;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Adaptive recovery failed";
+    const normalized = normalizeAgentError(error);
+    const message = normalized.message;
     await persistAgentMessage(supabase, runId, { senderAgent: "orchestrator", messageType: "error", payload: { message } });
     await finishAgentRun(supabase, runId, Object.keys(outputs).length ? "partial" : "failed", { outputs }, message);
-    throw error;
+    throw normalized;
   }
 }
 
@@ -113,10 +115,11 @@ export async function runCareerAnalysis(supabase: SupabaseClient, userId: string
     await finishAgentRun(supabase, runId, "completed", result);
     return result;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Agent run failed";
+    const normalized = normalizeAgentError(error);
+    const message = normalized.message;
     await persistAgentMessage(supabase, runId, { senderAgent: "orchestrator", messageType: "error", payload: { message } });
     await finishAgentRun(supabase, runId, Object.keys(outputs).length ? "partial" : "failed", { outputs }, message);
-    throw error;
+    throw normalized;
   }
 }
 
@@ -132,8 +135,9 @@ export async function runSingleAgent(supabase: SupabaseClient, userId: string, a
     await finishAgentRun(supabase, runId, "completed", result.output);
     return { runId, ...result };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Agent run failed";
+    const normalized = normalizeAgentError(error);
+    const message = normalized.message;
     await finishAgentRun(supabase, runId, "failed", undefined, message);
-    throw error;
+    throw normalized;
   }
 }

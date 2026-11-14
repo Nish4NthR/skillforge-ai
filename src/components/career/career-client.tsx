@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BriefcaseBusiness, Check, Loader2, Sparkles } from "lucide-react";
-import { formatPercent } from "@/lib/utils";
+import { formatPercent, getApiErrorMessage } from "@/lib/utils";
 
 type Gap = { skillName: string; gapScore: number; currentMastery: number; requiredMastery: number; priority: string; status: string };
 type Analysis = { role: { id: string; name: string; description: string }; skillCoverage: number; masteredSkills: number; requiredSkills: number; gaps: Gap[] };
@@ -19,7 +19,7 @@ export function CareerClient() {
   async function loadAnalyses() {
     const response = await fetch("/api/career/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error ?? "Unable to load career analysis.");
+    if (!response.ok) throw new Error(getApiErrorMessage(data, "Unable to load career analysis."));
     setAnalyses(data.analyses ?? []);
   }
 
@@ -30,7 +30,7 @@ export function CareerClient() {
     setMessage("");
     const response = await fetch("/api/career/change", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ roleId }) });
     const data = await response.json();
-    if (!response.ok) setMessage(data.error ?? "Unable to change career goal.");
+    if (!response.ok) setMessage(getApiErrorMessage(data, "Unable to change career goal."));
     else { setMessage("Career goal changed and a new roadmap version was generated."); setComparison(data.comparison ?? null); await loadAnalyses(); }
     setChanging(false);
   }
