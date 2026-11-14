@@ -1,0 +1,21 @@
+alter table public.profiles enable row level security;
+alter table public.certifications enable row level security;
+alter table public.projects enable row level security;
+alter table public.learner_skills enable row level security;
+alter table public.goals enable row level security;
+alter table public.skills enable row level security;
+alter table public.skill_prerequisites enable row level security;
+alter table public.roles enable row level security;
+alter table public.role_skills enable row level security;
+alter table public.resources enable row level security;
+
+create policy "profiles own rows" on public.profiles for all using (auth.uid() = id) with check (auth.uid() = id);
+create policy "certifications own rows" on public.certifications for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "projects own rows" on public.projects for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "learner skills own rows" on public.learner_skills for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "goals own rows" on public.goals for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "authenticated read skills" on public.skills for select to authenticated using (true);
+create policy "authenticated read prerequisites" on public.skill_prerequisites for select to authenticated using (true);
+create policy "authenticated read roles" on public.roles for select to authenticated using (true);
+create policy "authenticated read role skills" on public.role_skills for select to authenticated using (true);
+create policy "authenticated read resources" on public.resources for select to authenticated using (true);

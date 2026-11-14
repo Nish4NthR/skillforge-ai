@@ -1,0 +1,45 @@
+{
+  "name": "skillforge-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "next": "15.5.29",
+    "@supabase/supabase-js": "2.116.0",
+    "@supabase/ssr": "0.12.7",
+    "zod": "4.6.7",
+    "lucide-react": "0.475.0",
+    "recharts": "3.10.1",
+    "@xyflow/react": "12.12.0",
+    "date-fns": "4.1.0",
+    "@google/genai": "1.52.0"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^22.10.0",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "@tailwindcss/postcss": "4.2.4",
+    "tailwindcss": "4.2.4",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.29",
+    "@eslint/eslintrc": "^3",
+    "vitest": "2.1.9",
+    "@vitejs/plugin-react": "4.3.4",
+    "@testing-library/react": "16.1.0",
+    "@testing-library/jest-dom": "6.6.3",
+    "@playwright/test": "1.51.1",
+    "jsdom": "25.0.1"
+  }
+}
