@@ -3,8 +3,8 @@
 Configure these environment variables in Vercel:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` (server-only)
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+- `SUPABASE_SECRET_KEY` (or legacy `SUPABASE_SERVICE_ROLE_KEY`; server-only)
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL` (recommended: `gemini-3.8-flash`; keep this on a currently available stable Gemini model)
 

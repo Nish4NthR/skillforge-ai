@@ -2,6 +2,7 @@ export type SkillForgeErrorCode =
   | "INVALID_REQUEST"
   | "UNAUTHORIZED_REQUEST"
   | "DATABASE_ERROR"
+  | "SUPABASE_CONFIGURATION_INVALID"
   | "GEMINI_API_KEY_MISSING"
   | "GEMINI_AUTHENTICATION_FAILED"
   | "GEMINI_QUOTA_EXCEEDED"
@@ -116,6 +117,13 @@ export class DatabaseError extends SkillForgeError {
   constructor() {
     super("DATABASE_ERROR", "A data service error occurred.", { statusCode: 500 });
     this.name = "DatabaseError";
+  }
+}
+
+export class SupabaseConfigurationError extends SkillForgeError {
+  constructor(message = "The data service is not configured correctly.") {
+    super("SUPABASE_CONFIGURATION_INVALID", message, { statusCode: 503 });
+    this.name = "SupabaseConfigurationError";
   }
 }
 
